@@ -1,9 +1,9 @@
 package com.mickey.taskhub.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "user_accounts")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -33,9 +33,9 @@ public class UserAccount {
 	@Column(nullable = false)
 	private Boolean enabled = true;
 	
-	@OneToOne(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private UserProfile profile;
 	
 	@OneToMany(mappedBy = "owner")
-	private List<TaskItem> tasks= new ArrayList<>();
+	private List<TaskItem> tasks = new ArrayList<>();
 }
