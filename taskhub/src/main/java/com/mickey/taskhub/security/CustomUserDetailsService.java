@@ -1,15 +1,13 @@
 package com.mickey.taskhub.security;
 
 import com.mickey.taskhub.entity.UserAccount;
-import com.mickey.taskhub.exception.BadRequestException;
-import com.mickey.taskhub.exception.UserNotFoundException;
+import com.mickey.taskhub.exception.UsernameNotFoundException;
 import com.mickey.taskhub.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -21,14 +19,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 	
 	@Override
 	public UserDetails loadUserByUsername(@NonNull String userEmail) throws UsernameNotFoundException {
-		String email=userEmail.trim().toLowerCase(Locale.ROOT);
-		UserAccount user=repository.findByEmailIgnoreCase(email).orElseThrow(()-> new UserNotFoundException("User not found"));
+		String email = userEmail.trim().toLowerCase(Locale.ROOT);
+		UserAccount user = repository.findByEmailIgnoreCase(email).orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
 		
 		return User.builder()
 				.username(user.getEmail())
 				.password(user.getPasswordHash())
 				.roles(user.getRole().name())
-				.disabled(!user.getEnabled())
+				.disabled(!Boolean.TRUE.equals(user.getEnabled()))
 				.build();
 		
 	}

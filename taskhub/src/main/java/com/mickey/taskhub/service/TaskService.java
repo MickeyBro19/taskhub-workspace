@@ -8,7 +8,7 @@ import com.mickey.taskhub.entity.TaskItem;
 import com.mickey.taskhub.entity.TaskStatus;
 import com.mickey.taskhub.entity.UserAccount;
 import com.mickey.taskhub.exception.BadRequestException;
-import com.mickey.taskhub.exception.UserNotFoundException;
+import com.mickey.taskhub.exception.UsernameNotFoundException;
 import com.mickey.taskhub.repository.TagRepository;
 import com.mickey.taskhub.repository.TaskItemRepository;
 import com.mickey.taskhub.repository.UserAccountRepository;
@@ -25,13 +25,13 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class TaskService {
-	private TaskItemRepository taskItemRepository;
-	private TagRepository tagRepository;
-	private UserAccountRepository userAccountRepository;
+	private final TaskItemRepository taskItemRepository;
+	private final TagRepository tagRepository;
+	private final UserAccountRepository userAccountRepository;
 	
 	@Transactional
 	public TaskResponse create(Long ownerId, CreateTaskRequest request) {
-		UserAccount owner = userAccountRepository.findById(ownerId).orElseThrow(() -> new UserNotFoundException("User not Found"));
+		UserAccount owner = userAccountRepository.findById(ownerId).orElseThrow(() -> new UsernameNotFoundException("User not Found"));
 		TaskItem task = new TaskItem();
 		task.setTitle(request.title().trim());
 		task.setDescription(request.description());
@@ -82,7 +82,7 @@ public class TaskService {
 		if (found.size() != ids.size()) {
 			throw new BadRequestException("One or more tag IDs are invalid");
 		}
-		return new HashSet<>();
+		return new HashSet<>(found);
 		
 	}
 }
