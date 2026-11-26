@@ -1,10 +1,7 @@
 package com.mickey.taskhub.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -12,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "task_items")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter

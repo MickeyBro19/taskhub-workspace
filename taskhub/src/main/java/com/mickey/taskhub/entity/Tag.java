@@ -1,9 +1,9 @@
 package com.mickey.taskhub.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tags")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -23,6 +23,6 @@ public class Tag {
 	@Column(nullable = false, unique = true, length = 60)
 	private String name;
 	
-	@ManyToMany (mappedBy = "tags")
-	private Set<TaskItem> tasks=new HashSet<>();
+	@ManyToMany(mappedBy = "tags")
+	private Set<TaskItem> tasks = new HashSet<>();
 }

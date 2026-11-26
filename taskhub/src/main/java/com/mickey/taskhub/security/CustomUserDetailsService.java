@@ -1,13 +1,13 @@
 package com.mickey.taskhub.security;
 
 import com.mickey.taskhub.entity.UserAccount;
-import com.mickey.taskhub.exception.UsernameNotFoundException;
 import com.mickey.taskhub.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;

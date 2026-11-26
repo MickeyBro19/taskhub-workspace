@@ -24,14 +24,19 @@ public class UserController {
 	private final UserAccountRepository userAccountRepository;
 	private final PasswordEncoder passwordEncoder;
 	
-	public UserController(UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder) {
+	public UserController(
+			UserAccountRepository userAccountRepository,
+			PasswordEncoder passwordEncoder
+	                     ) {
 		this.userAccountRepository = userAccountRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 	
 	@Transactional
 	@PostMapping("/register")
-	public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegistrationRequest request) {
+	public ResponseEntity<UserResponse> register(
+			@Valid @RequestBody UserRegistrationRequest request
+	                                            ) {
 		String email = request.email().trim().toLowerCase(Locale.ROOT);
 		if (userAccountRepository.existsByEmailIgnoreCase(email)) {
 			throw new BadRequestException("User already exits");
@@ -43,11 +48,17 @@ public class UserController {
 		
 		UserProfile profile = new UserProfile();
 		profile.setDisplayName(request.displayName().trim());
+		
+		// Maintain both sides of the relationship.
 		account.setProfile(profile);
 		profile.setUser(account);
-		// Cascade persists the associated profile
-		return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(userAccountRepository.save(account)));
 		
+		// Cascade persists the associated profile
+		UserAccount savedAccount = userAccountRepository.save(account);
+		
+		return ResponseEntity
+				.status(HttpStatus.CREATED)
+				.body(toResponse(savedAccount));
 	}
 	
 	

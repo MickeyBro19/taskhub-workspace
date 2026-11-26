@@ -2,20 +2,54 @@ services:
   taskhub-db:
     image: postgres
     container_name: taskhub-db
+    restart: unless-stopped
+
     env_file:
       - .env
+
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD:? Set DB_PASSWORD}
+
     ports:
       - "5432:5432"
+
     volumes:
       - taskhub_data:/var/lib/postgresql
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U taskhub_user -d taskhub"]
+      test: [ "CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\"" ]
       interval: 5s
       timeout: 3s
       retries: 10
+
+
+  taskhub-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: taskhub-app
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      DB_HOST: taskhub-db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      taskhub-db:
+        condition: service_healthy
+
 volumes:
   taskhub_data:

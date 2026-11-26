@@ -1,14 +1,14 @@
 package com.mickey.taskhub.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "user_profiles")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -24,7 +24,7 @@ public class UserProfile {
 	private String bio;
 	
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id",nullable = false)
+	@JoinColumn(name = "user_id", nullable = false)
 	private UserAccount user;
 	
 }
