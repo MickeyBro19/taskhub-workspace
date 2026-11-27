@@ -32,7 +32,7 @@ public class TaskItem {
 	private Instant createdAt = Instant.now();
 	
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "owner_id")
+	@JoinColumn(name = "owner_id",nullable = false)
 	private UserAccount owner;
 	
 	@ManyToMany

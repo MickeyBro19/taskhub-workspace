@@ -1,6 +1,6 @@
 services:
   taskhub-db:
-    image: postgres
+    image: postgres:18
     container_name: taskhub-db
     restart: unless-stopped
 

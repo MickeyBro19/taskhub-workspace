@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Calendar;
 import java.util.Locale;
 
 @RestController
@@ -49,14 +50,21 @@ public class AuthController {
 			AuthResponse response = new AuthResponse(
 					accessToken,
 					"Bearer",
-					accessTokenExpirationMs/1000
-					);
+					accessTokenExpirationMs / 1000
+			);
 			return ResponseEntity.ok(response);
-		}catch (AuthenticationException e){
+		}
+		catch (AuthenticationException e) {
 			throw new ResponseStatusException(
 					HttpStatus.UNAUTHORIZED,
 					"Invalid email or password"
 			);
 		}
+	}
+	
+	private String generateRefreshToken(){
+		byte[] bytes = new byte[64];
+		new java.security.SecureRandom().nextBytes(bytes);
+		return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 	}
 }

@@ -8,7 +8,7 @@ import com.mickey.taskhub.entity.TaskItem;
 import com.mickey.taskhub.entity.TaskStatus;
 import com.mickey.taskhub.entity.UserAccount;
 import com.mickey.taskhub.exception.BadRequestException;
-import com.mickey.taskhub.exception.UsernameNotFoundException;
+import com.mickey.taskhub.exception.NotFoundException;
 import com.mickey.taskhub.repository.TagRepository;
 import com.mickey.taskhub.repository.TaskItemRepository;
 import com.mickey.taskhub.repository.UserAccountRepository;
@@ -31,7 +31,7 @@ public class TaskService {
 	
 	@Transactional
 	public TaskResponse create(Long ownerId, CreateTaskRequest request) {
-		UserAccount owner = userAccountRepository.findById(ownerId).orElseThrow(() -> new UsernameNotFoundException("User not Found"));
+		UserAccount owner = userAccountRepository.findById(ownerId).orElseThrow(() -> new NotFoundException("User not Found"));
 		TaskItem task = new TaskItem();
 		task.setTitle(request.title().trim());
 		task.setDescription(request.description());
@@ -42,25 +42,16 @@ public class TaskService {
 		return toResponse(taskItemRepository.save(task));
 	}
 	
-	@Transactional(readOnly = true)
-	public Page<TaskResponse> getMyTasks(Long ownerId, Pageable pageable){
-		return taskItemRepository.findByOwnerId(ownerId,pageable).map(this::toResponse);
-	}
-	
-	@Transactional
-	public TaskResponse update(Long ownerId, Long taskId, UpdateTaskRequest request){
-		TaskItem task = taskItemRepository.findByIdAndOwnerId(taskId,ownerId).orElseThrow(()->new BadRequestException("Task not found: "+taskId));
-		task.setTitle(request.title());
-		task.setDescription(request.description());
-		task.setStatus(request.status());
-		task.setTags(resolveTags(request.tagIds()));
-		return toResponse(taskItemRepository.save(task));
-	}
-	
-	@Transactional
-	public void delete(Long taskId){
-		TaskItem task=taskItemRepository.findById(taskId).orElseThrow(()->new BadRequestException("Task not found: "+taskId));
-		taskItemRepository.delete(task);
+	private Set<Tag> resolveTags(Set<Long> ids) {
+		if (ids == null || ids.isEmpty()) {
+			return new HashSet<>();
+		}
+		List<Tag> found = tagRepository.findAllById(ids);
+		if (found.size() != ids.size()) {
+			throw new BadRequestException("One or more tag IDs are invalid");
+		}
+		return new HashSet<>(found);
+		
 	}
 	
 	private TaskResponse toResponse(TaskItem task) {
@@ -74,15 +65,35 @@ public class TaskService {
 		);
 	}
 	
-	private Set<Tag> resolveTags(Set<Long> ids) {
-		if (ids == null || ids.isEmpty()) {
-			return new HashSet<>();
-		}
-		List<Tag> found = tagRepository.findAllById(ids);
-		if (found.size() != ids.size()) {
-			throw new BadRequestException("One or more tag IDs are invalid");
-		}
-		return new HashSet<>(found);
+	@Transactional(readOnly = true)
+	public Page<TaskResponse> getMyTasks(Long ownerId, Pageable pageable) {
+		return taskItemRepository
+				.findByOwnerId(ownerId, pageable)
+				.map(this :: toResponse);
+	}
+	
+	@Transactional(readOnly = true)
+	public TaskResponse getMyTask(Long ownerId, Long taskId) {
+		return taskItemRepository
+				.findByIdAndOwnerId(taskId, ownerId)
+				.map(this :: toResponse)
+				.orElseThrow(() -> new BadRequestException("Task not found: " + taskId));
 		
+	}
+	
+	@Transactional
+	public TaskResponse update(Long ownerId, Long taskId, UpdateTaskRequest request) {
+		TaskItem task = taskItemRepository.findByIdAndOwnerId(taskId, ownerId).orElseThrow(() -> new BadRequestException("Task not found: " + taskId));
+		task.setTitle(request.title());
+		task.setDescription(request.description());
+		task.setStatus(request.status());
+		task.setTags(resolveTags(request.tagIds()));
+		return toResponse(taskItemRepository.save(task));
+	}
+	
+	@Transactional
+	public void delete(Long taskId, Long ownerId) {
+		TaskItem task = taskItemRepository.findByIdAndOwnerId(taskId, ownerId).orElseThrow(() -> new BadRequestException("Task not found: " + taskId));
+		taskItemRepository.delete(task);
 	}
 }

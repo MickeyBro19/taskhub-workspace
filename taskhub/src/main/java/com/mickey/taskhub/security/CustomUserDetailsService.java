@@ -22,12 +22,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 		String email = userEmail.trim().toLowerCase(Locale.ROOT);
 		UserAccount user = repository.findByEmailIgnoreCase(email).orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
 		
-		return User.builder()
-				.username(user.getEmail())
-				.password(user.getPasswordHash())
-				.roles(user.getRole().name())
-				.disabled(!Boolean.TRUE.equals(user.getEnabled()))
-				.build();
-		
+		return new CustomUserPrincipal(
+				user.getId(),
+				user.getEmail(),
+				user.getPasswordHash(),
+				user.getRole(),
+				Boolean.TRUE.equals(user.getEnabled())
+		);
 	}
 }
